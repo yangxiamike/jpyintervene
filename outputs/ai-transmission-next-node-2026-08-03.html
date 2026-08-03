@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI 资本开支传导：下一节点在哪里？</title>
+  <style>
+    :root{
+      --ink:#16231f; --muted:#65736d; --paper:#f7f6f1; --card:#ffffff;
+      --line:#dfe4df; --green:#176b55; --green2:#dff0e9; --amber:#9b6514;
+      --amber2:#f8edd7; --red:#9d3e36; --red2:#f7e3e0; --navy:#1d3d57;
+    }
+    *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);
+      font:15px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+    main{max-width:1180px;margin:0 auto;padding:42px 28px 72px}
+    h1{font-size:38px;line-height:1.16;margin:0 0 10px;letter-spacing:-.8px}
+    h2{font-size:24px;margin:38px 0 14px} h3{font-size:17px;margin:0 0 8px}
+    p{margin:8px 0}.kicker{color:var(--green);font-weight:750;letter-spacing:.08em;text-transform:uppercase}
+    .sub{max-width:900px;color:var(--muted);font-size:17px}.asof{color:var(--muted);font-size:13px;margin-top:12px}
+    .hero{background:linear-gradient(135deg,#113c32,#1d3d57);color:#fff;border-radius:20px;padding:28px 30px;margin-top:26px;box-shadow:0 12px 34px #183a2d22}
+    .hero strong{color:#bff0df}.hero h2{margin:0 0 10px;font-size:26px}.hero p{font-size:17px;max-width:1040px}
+    .grid{display:grid;gap:14px}.kpis{grid-template-columns:repeat(4,1fr);margin:18px 0 4px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 4px 14px #1b33250a}
+    .metric{font-size:28px;font-weight:780;letter-spacing:-.5px}.label{color:var(--muted);font-size:13px}
+    .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;align-items:stretch;margin:18px 0}
+    .node{padding:12px 10px;border-radius:10px;text-align:center;background:#edf1ee;border:1px solid #dbe2dd;font-weight:650;font-size:13px}
+    .node.active{background:var(--green2);border-color:#9fcfbc;color:#125443}.node.next{background:var(--amber2);border-color:#e4c58b;color:#7c500f}
+    .node.risk{background:var(--red2);border-color:#e5aaa4;color:#7f312b}.arrow{text-align:center;color:#8b9993;margin:-3px 0 4px}
+    .two{grid-template-columns:1.1fr .9fr}.callout{border-left:4px solid var(--green);background:#edf6f2;padding:14px 18px;border-radius:0 10px 10px 0}
+    .formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#13231f;color:#e8f5ef;border-radius:12px;padding:16px 18px;overflow:auto;font-size:14px}
+    table{width:100%;max-width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:13px;overflow-x:auto;display:block}
+    thead,tbody{display:table;width:100%;min-width:820px;table-layout:fixed}
+    th,td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+    th{background:#edf1ee;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:#4f5d57}
+    tr:last-child td{border-bottom:0}.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+    .tag{display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:720;white-space:nowrap}
+    .a{background:var(--green2);color:var(--green)}.b{background:var(--amber2);color:var(--amber)}.c{background:#e9edf0;color:#52616b}.r{background:var(--red2);color:var(--red)}
+    .bars{display:grid;gap:9px}.barrow{display:grid;grid-template-columns:72px 1fr 56px;gap:9px;align-items:center;font-size:13px}
+    .track{height:12px;background:#e7ebe8;border-radius:8px;overflow:hidden;position:relative}.bar{height:100%;border-radius:8px;background:#4b9b80}.bar.neg{background:#c66a61;float:right}
+    ul{padding-left:20px;margin:8px 0}li{margin:5px 0}a{color:#176b55;text-decoration:none;border-bottom:1px solid #176b5555}a:hover{border-bottom-color:#176b55}
+    .small{font-size:12px;color:var(--muted)}.foot{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+    @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:repeat(3,1fr)}.two{grid-template-columns:1fr}h1{font-size:31px}}
+    @media(max-width:600px){main{padding:26px 15px 50px}.kpis{grid-template-columns:1fr}.flow{grid-template-columns:repeat(2,1fr)}table{font-size:12px}th,td{padding:8px}.hide-sm{display:none}}
+  </style>
+</head>
+<body><main>
+  <div class="kicker">Leopold framework · public-equity triage</div>
+  <h1>AI 资本开支传导：下一节点已经从“供给”转向“回款”</h1>
+  <p class="sub">结论不是简单的“下一棒就是云”。云已经开始兑现收入，但尚未证明新增 AI 资本的全周期回报。真正决定下一轮扩张能否自洽的节点，是<strong>云 IaaS 之后的数据/PaaS/安全/Agent 附加收入</strong>，以及它们能否在折旧和电力成本上升后仍产生足够现金利润。</p>
+  <div class="asof">截至 2026-08-03；股价为美股 2026-07-31 收盘。以下均为研究优先级，不构成交易建议。</div>
+
+  <section class="hero">
+    <h2>一句话判断</h2>
+    <p><strong>基本面下一节点：</strong>GPU IaaS → 数据/PaaS/安全 → Agent/应用消费。<br/>
+      <strong>股价下一节点：</strong>并不等同于基本面节点；IaaS 和纯软件的预期已大量进入价格，当前更值得研究的是“收入已拐头、但折旧后回报尚未被证明”的云平台，以及“订单已爆发、收入尚未完全跟上”的配电/HVAC。</p>
+  </section>
+
+  <div class="grid kpis">
+    <div class="card"><div class="metric">$720–745bn</div><div class="label">MSFT / AMZN / GOOGL / META 2026 报告口径 CAPEX 指引合计</div></div>
+    <div class="card"><div class="metric">≈$0.8tn</div><div class="label">加入 Oracle FY26 CAPEX 后的量级；仍非“单个万亿美元集群”</div></div>
+    <div class="card"><div class="metric">3.15×</div><div class="label">四大云厂 LTM CAPEX / 折旧约数：未来折旧墙仍在形成</div></div>
+    <div class="card"><div class="metric">≈19%</div><div class="label">假设 10% 资本成本、短长资产混合寿命下的年资本回收门槛</div></div>
+  </div>
+
+  <h2>1. 传导链现在走到了哪里</h2>
+  <div class="flow">
+    <div class="node">HBM / GPU<br/>利润已兑现</div>
+    <div class="node">网络 / 光互联<br/>收入已兑现</div>
+    <div class="node active">配电 / 冷却<br/>订单→收入</div>
+    <div class="node active">云 IaaS<br/>收入已加速</div>
+    <div class="node next">数据 / PaaS / 安全<br/>下一利润池</div>
+    <div class="node risk">Agent / 应用<br/>付费仍待证明</div>
+  </div>
+  <p class="small">这不是机械轮动顺序：云厂商既是链首的资本开支承担者，也是链尾的算力分销和变现渠道。</p>
+
+  <div class="grid two">
+    <div class="card">
+      <h3>收入端已经开始兑现</h3>
+      <ul>
+        <li>Azure FY26 收入突破 $100bn、增长 41%；最新季度增长 43%，新增容量被快速变现；Foundry 收入翻倍、M365 Copilot 付费席位超过 3,000 万。[<a href="https://www.microsoft.com/en-us/Investor/events/fy-2026/earnings-fy-2026-q4">Microsoft FY26 Q4</a>]</li>
+        <li>AWS Q2 收入 $42.2bn、增长 37%，营业利润 $16.6bn；AI 业务 ARR 超过 $25bn。[<a href="https://ir.aboutamazon.com/news-release/news-release-details/2026/Amazon-com-Announces-Second-Quarter-Results/">Amazon Q2 2026</a>]</li>
+        <li>Google Cloud Q2 收入 $24.8bn、增长 82%，营业利润率从 20.7%升至 35.6%；但分部不承担全部共享 AI 研发成本。[<a href="https://s206.q4cdn.com/479360582/files/doc_financials/2026/q2/2026q2-alphabet-earnings-release.pdf">Alphabet Q2 2026</a>]</li>
+        <li>Oracle Q4 IaaS 收入增长 93%，RPO 达 $638bn，是最纯的云算力收入加速样本。[<a href="https://investor.oracle.com/investor-news/news-details/2026/Oracle-Announces-Record-Q4-and-FY-2026-Results-Driven-by-Cloud-Infrastructure--Cloud-Applications/">Oracle FY26 Q4</a>]</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>但资本回报仍未闭环</h3>
+      <ul>
+        <li>Amazon LTM 经营现金流 $161.4bn，净购置固定资产 $169.0bn，FCF 为 −$7.6bn。</li>
+        <li>Alphabet Q2 CAPEX $44.9bn、折旧仅 $7.1bn，单季 FCF 为 −$5.9bn；2026 CAPEX 指引上调至 $195–205bn。[<a href="https://s206.q4cdn.com/479360582/files/doc_events/2026/Jul/22/2026_Q2_Earnings_Transcript.pdf">Alphabet Q2 call</a>]</li>
+        <li>Oracle FY26 CAPEX $55.7bn，FCF 为 −$23.7bn；客户预付或自带 GPU 已达 $75bn，说明需求强，也说明风险在向客户转移。</li>
+        <li>CoreWeave LTM 债务约 $35.2bn、FCF 约 −$10.6bn；高调整后 EBITDA 并不能替代折旧和利息后的真实回报。[<a href="https://investors.coreweave.com/news/news-details/2026/CoreWeave-Reports-Strong-First-Quarter-2026-Results/">CoreWeave Q1</a>]</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>2. “收入必须做上去”到底要做到多大</h2>
+  <div class="formula">年资本回收门槛 ≈ 新增部署资本 × 19%
+需要的新增收入 ≈ 年资本回收门槛 ÷ 现金贡献率
+
+以 2026 年约 $747.5bn 的投资意图中点测算：
+现金贡献率 30% → 需要约 $474bn 年收入
+现金贡献率 45% → 需要约 $316bn 年收入
+现金贡献率 60% → 需要约 $237bn 年收入
+
+若资本批次达到 $1tn：对应年收入约 $635bn / $423bn / $317bn。</div>
+  <p class="small">假设：约 65%短寿命算力资产（6年）、35%长寿命设施（20年）、资本成本 10%。这是多年度经济回报门槛，不是要求同年收入完全覆盖同年 CAPEX。CAPEX 同时服务传统云、广告、内部研发，不能把全部投资只除以公开披露的 AI ARR。</p>
+  <div class="callout"><strong>因此你的判断成立，但要加一个限定：</strong>目前可明确相加的 AI ARR 下限只有约 $62bn（Microsoft 已披露 AI ARR 与 AWS AI ARR），远不足以单独支撑整个资本批次；当前扩张仍依赖传统业务现金流、债务/租赁、客户预付和未来收入。下一轮市场验证会从“有没有需求”转向“单位资本能产生多少折旧后现金利润”。</div>
+
+  <h2>3. 行情告诉我们：市场已经在区分“收入证明”与“融资风险”</h2>
+  <div class="grid two">
+    <div class="card">
+      <h3>近 52 周价格涨跌</h3>
+      <div class="bars">
+        <div class="barrow"><span>DDOG</span><div class="track"><div class="bar" style="width:80%"></div></div><b>+80%</b></div>
+        <div class="barrow"><span>GOOGL</span><div class="track"><div class="bar" style="width:81%"></div></div><b>+81%</b></div>
+        <div class="barrow"><span>VRT</span><div class="track"><div class="bar" style="width:68%"></div></div><b>+68%</b></div>
+        <div class="barrow"><span>GEV</span><div class="track"><div class="bar" style="width:51%"></div></div><b>+51%</b></div>
+        <div class="barrow"><span>ANET</span><div class="track"><div class="bar" style="width:48%"></div></div><b>+48%</b></div>
+        <div class="barrow"><span>SNOW</span><div class="track"><div class="bar" style="width:33%"></div></div><b>+33%</b></div>
+        <div class="barrow"><span>AMZN</span><div class="track"><div class="bar" style="width:18%"></div></div><b>+18%</b></div>
+        <div class="barrow"><span>ETN</span><div class="track"><div class="bar" style="width:6%"></div></div><b>+6%</b></div>
+        <div class="barrow"><span>MSFT</span><div class="track"><div class="bar neg" style="width:9%"></div></div><b>−9%</b></div>
+        <div class="barrow"><span>CRWV</span><div class="track"><div class="bar neg" style="width:30%"></div></div><b>−30%</b></div>
+        <div class="barrow"><span>ORCL</span><div class="track"><div class="bar neg" style="width:48%"></div></div><b>−48%</b></div>
+      </div>
+      <p class="small">价格与 52 周数据来自 StockAnalysis / S&amp;P Global MI，截止 2026-07-31。价格上涨不等同于拥挤度的直接证据，但可作为“预期已反映”的初筛。</p>
+    </div>
+    <div class="card">
+      <h3>市场给出的三个信号</h3>
+      <ol>
+        <li><strong>高质量收入证明会被迅速重估：</strong>MSFT 财报后两日从 $390.54 上涨至 $464.72；AMZN 财报次日上涨 15.3%。</li>
+        <li><strong>增长不能掩盖资本结构：</strong>ORCL IaaS 增长 93%，股价 52 周仍跌 48%；CRWV 收入高增，但债务/折旧/利息使股价 52 周跌 30%。</li>
+        <li><strong>下一个软件利润池并不便宜：</strong>SNOW 约 15.8×前瞻销售额，DDOG 约 21.0×；基本面顺序正确，不代表当前价格有足够赔率。</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>4. 候选漏斗：下一步该研究什么</h2>
+  <table>
+    <thead><tr><th>节点 / 代表</th><th>价格与历史</th><th>估值 / 现金</th><th>研究判断</th><th>状态</th></tr></thead>
+    <tbody>
+      <tr><td><strong>全栈云变现</strong><br/>MSFT</td><td class="num">$464.72<br/>52周 −9%</td><td>前瞻 P/E 23.7×；LTM FCF $67.0bn</td><td>Azure→Foundry/Fabric/Postgres→Copilot 的附加销售证据最完整；但最新财报已快速重估。</td><td><span class="tag a">深入研究</span></td></tr>
+      <tr><td><strong>IaaS 规模化</strong><br/>AMZN</td><td class="num">$271.58<br/>52周 +18%</td><td>前瞻 P/E 29.5×；LTM FCF 转负</td><td>AWS 增速与利润率强，但下一关键不是收入，而是 CAPEX 后 FCF 何时反转。</td><td><span class="tag a">情景建模</span></td></tr>
+      <tr><td><strong>高弹性 IaaS</strong><br/>ORCL</td><td class="num">$129.87<br/>52周 −48%</td><td>前瞻 P/E 16.1×；Debt/EBITDA 5.6×</td><td>收入弹性最大、价格预期最低；同时融资、客户集中和执行风险最高。</td><td><span class="tag b">高风险观察</span></td></tr>
+      <tr><td><strong>云+平台</strong><br/>GOOGL</td><td class="num">$356.13<br/>52周 +81%</td><td>前瞻 P/E 26.8×；P/FCF 81.8×</td><td>Cloud 增长和利润率已证明，且广告也能变现 AI；但价格已大幅捕捉。</td><td><span class="tag b">估值门槛</span></td></tr>
+      <tr><td><strong>GPU 云</strong><br/>CRWV</td><td class="num">$71.77<br/>52周 −30%</td><td>EV/销售 11.6×；Debt/EBITDA 11.6×</td><td>最直接的算力收入代理，却也是“EBITDA 不等于股东现金流”的反例。</td><td><span class="tag r">暂缓</span></td></tr>
+      <tr><td><strong>数据 / PaaS</strong><br/>SNOW</td><td class="num">$293.28<br/>52周 +33%</td><td>前瞻销售 15.8×；P/FCF 86.9×</td><td>逻辑上是 IaaS 后的下一利润池；现价需要持续高增长和高附加率。</td><td><span class="tag b">估值门槛</span></td></tr>
+      <tr><td><strong>可观测性</strong><br/>DDOG</td><td class="num">$267.97<br/>52周 +80%</td><td>前瞻销售 21.0×；P/FCF 89.9×</td><td>AI 工作负载上线必需的监控层，FCF 质量较好；但市场已提前交易。</td><td><span class="tag c">等业绩验证</span></td></tr>
+      <tr><td><strong>配电</strong><br/>ETN</td><td class="num">$415.20<br/>52周 +6%</td><td>前瞻 P/E 27.8×；P/FCF 41.0×</td><td>电气订单和 backlog 已显著增长，而价格动量弱于 VRT/PWR/GEV；更像物理链的相对下一棒。</td><td><span class="tag a">深入研究</span></td></tr>
+      <tr><td><strong>HVAC</strong><br/>CARR</td><td class="num">$61.81<br/>52周 −9%</td><td>前瞻 P/E 20.1×；高负债</td><td>数据中心订单增长超 300%，但集团有机收入仅增 3%、利润率下降；典型“订单先于利润”。</td><td><span class="tag b">早期观察</span></td></tr>
+    </tbody>
+  </table>
+  <p class="small">行情与估值：[<a href="https://stockanalysis.com/stocks/msft/statistics/">MSFT</a>] [<a href="https://stockanalysis.com/stocks/amzn/statistics/">AMZN</a>] [<a href="https://stockanalysis.com/stocks/googl/statistics/">GOOGL</a>] [<a href="https://stockanalysis.com/stocks/orcl/statistics/">ORCL</a>] [<a href="https://stockanalysis.com/stocks/crwv/statistics/">CRWV</a>] [<a href="https://stockanalysis.com/stocks/snow/statistics/">SNOW</a>] [<a href="https://stockanalysis.com/stocks/ddog/statistics/">DDOG</a>] [<a href="https://stockanalysis.com/stocks/etn/statistics/">ETN</a>]。CARR 基本面：[<a href="https://www.prnewswire.com/news-releases/carrier-reports-second-quarter-2026-results-302836318.html">Q2 2026</a>]。</p>
+
+  <h2>5. 最关键的验证指标</h2>
+  <div class="grid two">
+    <div class="card"><h3>如果闭环成立</h3><ul>
+      <li>云收入/毛利增速持续高于折旧增速；</li>
+      <li>四大云厂合计 CFO/CAPEX 回到并稳定在 1×以上；</li>
+      <li>RPO 在 12–24 个月内转收入，而非期限不断后移；</li>
+      <li>数据、数据库、安全、可观测性的附加率持续上升；</li>
+      <li>Agent 从席位费走向“席位+消费”，同时毛利不恶化。</li>
+    </ul></div>
+    <div class="card"><h3>如果链条断裂</h3><ul>
+      <li>CAPEX 继续上修，但 AI/云 ARR 增速跌破 30–40%；</li>
+      <li>GPU 租赁价格和利用率同时下降；</li>
+      <li>云分部利润率连续两个季度受折旧/电力压缩；</li>
+      <li>靠延长资产寿命、客户预付、债务或发股维持扩张；</li>
+      <li>2027 CAPEX 因需求转化不足被砍，反向击穿上游订单。</li>
+    </ul></div>
+  </div>
+
+  <div class="foot">方法：以 Leopold 的“能力—收入—资本开支—物理容量—更强产品—再收入”闭环为骨架；公司基本面优先使用官方 IR/财报，市场数据使用 StockAnalysis（S&amp;P Global Market Intelligence）截至 2026-08-02 的快照。不同公司的 CAPEX、租赁与分部利润口径不完全一致，本文用于主题筛选与研究排序，不是审计口径合并报表。</div>
+</main></body></html>
